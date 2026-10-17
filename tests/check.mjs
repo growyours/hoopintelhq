@@ -26,5 +26,21 @@ ok(!/https?:\/\/[^"'\s]+\.(js|css|woff2?)/i.test(html), 'no external js/css/font
 ok(!/FAQPage/i.test(html), 'no FAQPage');
 for (const f of ['favicon.ico', 'favicon-32.png', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png', 'site.webmanifest', 'robots.txt', 'sitemap.xml', 'vercel.json', 'assets/style.css', 'assets/va.js', 'assets/avatar-192.webp', 'assets/avatar-192.jpg'])
   ok(existsSync(join(root, f)), `exists ${f}`);
+const vj = JSON.parse(readFileSync(join(root, 'vercel.json'), 'utf8'));
+const allRoutes = vj.headers.find(h => h.source === '/(.*)');
+ok(allRoutes?.headers.some(h => h.key === 'Permissions-Policy' && h.value === 'camera=(), microphone=(), geolocation=()'), 'Permissions-Policy header on all routes');
+ok(html.includes('<strong>Find your next pickup run</strong><span>Browse pickup runs, open gyms and leagues by city. Check the source before you go.</span>'), 'pickup card copy');
+ok(html.includes('<span>Training gear, home hoops and apps, compared by specs and price.</span>'), 'gear card copy');
+ok(html.includes('pickup runs by city'), 'meta description says pickup runs by city');
+const tmpl = readFileSync(join(root, 'templates/og.html'), 'utf8');
+ok(!/shoes/i.test(html + tmpl), 'no "shoes" in index.html or og template');
+ok(!/tonight/i.test(html + tmpl), 'no "tonight" in index.html or og template');
+const O = 'https://hoopintelhq.vercel.app';
+for (const [n, re] of [['canonical', /rel="canonical" href="([^"]+)"/], ['og:url', /og:url" content="([^"]+)"/], ['og:image', /og:image" content="([^"]+)"/], ['twitter:image', /twitter:image" content="([^"]+)"/]])
+  ok(html.match(re)?.[1].startsWith(O + '/'), `${n} uses ${O}`);
+const ld = JSON.parse(html.match(/application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
+ok(ld.url === O + '/' && ld.mainEntity.url === O + '/' && ld.mainEntity.logo === O + '/icon-512.png', 'JSON-LD url and logo absolute');
+ok(readFileSync(join(root, 'robots.txt'), 'utf8').includes(`Sitemap: ${O}/sitemap.xml`), 'robots sitemap line');
+ok(readFileSync(join(root, 'sitemap.xml'), 'utf8').includes(`<loc>${O}/</loc>`), 'sitemap loc');
 console.log('(tap-target size and horizontal-scroll checks run in the headless Chrome step)');
 process.exit(fails ? 1 : 0);
