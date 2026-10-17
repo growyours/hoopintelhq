@@ -1,0 +1,26 @@
+:root{--bg:#0b0b0d;--panel:#16161a;--line:#2a2a31;--text:#f4f4f6;--mut:#b4b4bd;--or:#ff6a13;--cy:#2ec9e0}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;background:var(--bg)}
+body{margin:0;min-height:100vh;color:var(--text);background:radial-gradient(120% 60% at 50% 0,#2a1507 0,var(--bg) 60%) no-repeat,var(--bg);font:16px/1.4 system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+.wrap{max-width:480px;margin:0 auto;padding:36px 18px 40px}
+.head{text-align:center;margin-bottom:28px}
+.logo{display:block;width:96px;height:96px;margin:0 auto 14px;border-radius:50%;box-shadow:0 0 0 3px var(--or),0 0 0 6px var(--bg),0 0 0 8px var(--cy)}
+h1{margin:0;font:900 38px/1 "Arial Narrow","Roboto Condensed","Helvetica Neue",Impact,system-ui,sans-serif;font-stretch:condensed;text-transform:uppercase;letter-spacing:.04em}
+h1 span{color:var(--or)}
+.tag{margin:10px 0 0;color:var(--mut);font-weight:700;font-size:14px;letter-spacing:.08em;text-transform:uppercase}
+.cards{display:grid;gap:14px}
+.card{display:flex;align-items:center;gap:12px;min-height:88px;padding:16px 18px;color:var(--text);text-decoration:none;background:var(--panel);border:2px solid var(--line);border-left:8px solid var(--or);border-radius:14px;transition:transform .15s,border-color .15s,background .15s}
+.card.alt{border-left-color:var(--cy)}
+.txt{flex:1;min-width:0}
+.card strong{display:block;font:900 20px/1.1 "Arial Narrow","Roboto Condensed","Helvetica Neue",Impact,system-ui,sans-serif;font-stretch:condensed;text-transform:uppercase;letter-spacing:.04em}
+.card .txt span{display:block;margin-top:6px;color:var(--mut);font-size:14px}
+.go{font-size:26px;font-weight:900;color:var(--or)}
+.alt .go{color:var(--cy)}
+.card:hover,.card:focus-visible{background:#1d1d23;border-color:var(--or);transform:translateY(-2px)}
+.card.alt:hover,.card.alt:focus-visible{border-color:var(--cy)}
+.card:active{transform:scale(.98)}
+a:focus-visible{outline:3px solid var(--cy);outline-offset:3px}
+.foot{margin-top:28px;text-align:center}
+.follow{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:0 20px;color:var(--text);font-weight:700;font-size:15px;text-decoration:none;border:2px solid var(--line);border-radius:999px}
+.follow:hover,.follow:focus-visible{border-color:var(--or);color:var(--or)}
+@media (prefers-reduced-motion:reduce){.card{transition:none}.card:hover,.card:focus-visible,.card:active{transform:none}}
