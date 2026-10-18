@@ -1,4 +1,4 @@
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -35,12 +35,23 @@ ok(html.includes('pickup runs by city'), 'meta description says pickup runs by c
 const tmpl = readFileSync(join(root, 'templates/og.html'), 'utf8');
 ok(!/shoes/i.test(html + tmpl), 'no "shoes" in index.html or og template');
 ok(!/tonight/i.test(html + tmpl), 'no "tonight" in index.html or og template');
-const O = 'https://hoopintelhq.vercel.app';
+const O = 'https://hoopintelhq.com';
 for (const [n, re] of [['canonical', /rel="canonical" href="([^"]+)"/], ['og:url', /og:url" content="([^"]+)"/], ['og:image', /og:image" content="([^"]+)"/], ['twitter:image', /twitter:image" content="([^"]+)"/]])
   ok(html.match(re)?.[1].startsWith(O + '/'), `${n} uses ${O}`);
 const ld = JSON.parse(html.match(/application\/ld\+json">([\s\S]*?)<\/script>/)[1]);
 ok(ld.url === O + '/' && ld.mainEntity.url === O + '/' && ld.mainEntity.logo === O + '/icon-512.png', 'JSON-LD url and logo absolute');
 ok(readFileSync(join(root, 'robots.txt'), 'utf8').includes(`Sitemap: ${O}/sitemap.xml`), 'robots sitemap line');
 ok(readFileSync(join(root, 'sitemap.xml'), 'utf8').includes(`<loc>${O}/</loc>`), 'sitemap loc');
+ok(!/hoopintelhq\.vercel\.app/.test(html + readFileSync(join(root, 'robots.txt'), 'utf8') + readFileSync(join(root, 'sitemap.xml'), 'utf8')), 'no vercel.app self-references left');
+const rd = vj.redirects?.find(r => r.has?.some(h => h.type === 'host' && h.value === 'hoopintelhq.vercel.app'));
+ok(rd?.statusCode === 308 && rd.destination === O + '/:path*' && rd.source === '/:path*', 'vercel.app -> hoopintelhq.com 308 redirect');
+const llms = readFileSync(join(root, 'llms.txt'), 'utf8');
+ok(llms.includes(O + '/') && !llms.includes('vercel.app'), 'llms.txt uses canonical domain');
+const keyFiles = readdirSync(root).filter(f => /^[0-9a-f]{32}\.txt$/.test(f));
+ok(keyFiles.length === 1 && readFileSync(join(root, keyFiles[0]), 'utf8').trim() === keyFiles[0].slice(0, -4), 'IndexNow key file matches its name');
+const inow = readFileSync(join(root, 'scripts/indexnow.mjs'), 'utf8');
+ok(keyFiles[0] && inow.includes(`'${keyFiles[0].slice(0, -4)}'`) && inow.includes('https://api.indexnow.org/indexnow') && inow.includes("'hoopintelhq.com'"), 'indexnow.mjs uses key, host and endpoint');
+const vi = readFileSync(join(root, '.vercelignore'), 'utf8').split('\n').map(l => l.trim());
+ok(vi.includes('scripts/') && !vi.some(l => l.endsWith('.txt') || l === '*'), '.vercelignore excludes scripts/ but not the key file');
 console.log('(tap-target size and horizontal-scroll checks run in the headless Chrome step)');
 process.exit(fails ? 1 : 0);

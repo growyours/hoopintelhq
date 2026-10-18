@@ -1,5 +1,8 @@
 {
   "cleanUrls": true,
+  "redirects": [
+    {"source": "/:path*", "has": [{"type": "host", "value": "hoopintelhq.vercel.app"}], "destination": "https://hoopintelhq.com/:path*", "statusCode": 308}
+  ],
   "headers": [
     {"source": "/(.*)", "headers": [
       {"key": "X-Content-Type-Options", "value": "nosniff"},

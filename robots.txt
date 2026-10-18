@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://hoopintelhq.vercel.app/sitemap.xml
+Sitemap: https://hoopintelhq.com/sitemap.xml
