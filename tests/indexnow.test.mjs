@@ -71,3 +71,18 @@ test('failing statuses give non-zero exit, timeout is reported', async () => {
   assert.equal(code, 1);
   assert.match(lines[0], /Timed out after 30s/);
 });
+
+test('noindex detection ignores attribute order, spacing, quotes and case', () => {
+  const d = mkdtempSync(join(tmpdir(), 'indexnow-'));
+  const pages = {
+    normal: '<meta name="robots" content="noindex, nofollow">',
+    reversed: '<meta content="noindex" name="robots">',
+    spaced: '<meta name = "robots" content = "noindex">',
+    single: "<META CONTENT='NoIndex' NAME='GoogleBot' />",
+    ok: '<meta content="index,follow" name="robots">',
+    other: '<meta name="description" content="noindex explained">',
+  };
+  for (const [n, h] of Object.entries(pages)) writeFileSync(join(d, `${n}.html`), h);
+  const urls = Object.keys(pages).map(n => `https://hoopintelhq.com/${n}`);
+  assert.deepEqual(filterUrls(urls, d), ['https://hoopintelhq.com/ok', 'https://hoopintelhq.com/other']);
+});

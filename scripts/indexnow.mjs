@@ -22,7 +22,18 @@ function pageFile(pathname, dir) {
   return null;
 }
 
-const NOINDEX = /<meta[^>]+name=["']robots["'][^>]*content=["'][^"']*noindex/i;
+// True if any <meta name="robots|googlebot" content="...noindex..."> tag exists, whatever the
+// attribute order, spacing or quote style.
+export function hasNoindex(html) {
+  for (const [tag] of html.matchAll(/<meta\b[^>]*>/gi)) {
+    const attrs = {};
+    for (const m of tag.matchAll(/([^\s"'=<>\/]+)\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'>]+))/g)) {
+      attrs[m[1].toLowerCase()] ??= m[2] ?? m[3] ?? m[4];
+    }
+    if (/^(robots|googlebot)$/i.test(attrs.name?.trim() ?? '') && /noindex/i.test(attrs.content ?? '')) return true;
+  }
+  return false;
+}
 
 // Keep only https://hoopintelhq.com HTML pages that are not noindex.
 export function filterUrls(urls, dir = root) {
@@ -34,7 +45,7 @@ export function filterUrls(urls, dir = root) {
     if (/\.[a-z0-9]+$/i.test(u.pathname) && !u.pathname.endsWith('.html')) continue; // .txt, .xml, images...
     const file = pageFile(u.pathname, dir);
     if (!file) continue;
-    if (NOINDEX.test(readFileSync(file, 'utf8'))) continue;
+    if (hasNoindex(readFileSync(file, 'utf8'))) continue;
     keep.push(u.href);
   }
   return keep;
